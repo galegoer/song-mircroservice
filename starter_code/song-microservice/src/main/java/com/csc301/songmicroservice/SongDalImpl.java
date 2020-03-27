@@ -3,6 +3,7 @@ package com.csc301.songmicroservice;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.ExecutableFindOperation.ExecutableFind;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -58,7 +59,26 @@ public class SongDalImpl implements SongDal {
 
 	@Override
 	public DbQueryStatus updateSongFavouritesCount(String songId, boolean shouldDecrement) {
-		// TODO Auto-generated method stub
-		return null;
+		MongoCollection<Document> songs = db.getCollection("songs");
+		Song song = db.findById(songId, Song.class);
+		if (song == null) { 
+        	//song not found
+        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        }
+		//else found
+        if (shouldDecrement) {
+        	song.setSongAmountFavourites(song.getSongAmountFavourites() - 1);
+        	db.save(song);
+            DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+            
+            return status;
+        } else {
+        	//else increment
+        	song.setSongAmountFavourites(song.getSongAmountFavourites() + 1);
+        	DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        	db.save(song);
+        	
+        	return status;
+        }
 	}
 }
