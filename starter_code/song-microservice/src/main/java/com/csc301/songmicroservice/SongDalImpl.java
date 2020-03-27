@@ -1,11 +1,16 @@
 package com.csc301.songmicroservice;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 
 @Repository
 public class SongDalImpl implements SongDal {
@@ -31,8 +36,18 @@ public class SongDalImpl implements SongDal {
 
 	@Override
 	public DbQueryStatus getSongTitleById(String songId) {
-		// TODO Auto-generated method stub
-		return null;
+		MongoCollection<Document> songs = db.getCollection("songs");
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", songId);
+		FindIterable<Document> cursor = songs.find(query);
+        if (cursor.first() == null) { 
+        	//song not found
+        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        }
+        Document d = cursor.first();
+        DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        status.setData(d.getString("songName"));
+		return status;
 	}
 
 	@Override
