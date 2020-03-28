@@ -61,10 +61,10 @@ public class SongController {
 		response.put("path", String.format("GET %s", Utils.getUrl(request)));
 
 		DbQueryStatus dbQueryStatus = songDal.getSongTitleById(songId);
-		System.out.println(songId);
+		
 		response.put("message", dbQueryStatus.getMessage());
 		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
-
+		
 		return response;
 	}
 
@@ -108,6 +108,11 @@ public class SongController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("data", String.format("PUT %s", Utils.getUrl(request)));
 
-		return null;
+		DbQueryStatus dbQueryStatus = songDal.updateSongFavouritesCount(songId, shouldDecrement.equals("true"));
+		
+		response.put("message", dbQueryStatus.getMessage());
+		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
+		
+		return response;
 	}
 }
