@@ -60,8 +60,8 @@ public class SongController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("path", String.format("GET %s", Utils.getUrl(request)));
 
-		DbQueryStatus dbQueryStatus = songDal.getSongTitleById("5e7ebab133331443b8285310");
-
+		DbQueryStatus dbQueryStatus = songDal.getSongTitleById(songId);
+		System.out.println(songId);
 		response.put("message", dbQueryStatus.getMessage());
 		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
 

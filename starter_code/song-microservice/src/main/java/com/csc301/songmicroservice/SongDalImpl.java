@@ -43,38 +43,35 @@ public class SongDalImpl implements SongDal {
 	}
 
 	@Override
-	public DbQueryStatus findSongById(String songId) {
-		DbQueryStatus rtn;
-		
+	public DbQueryStatus findSongById(String songId) {		
+		MongoCollection<Document> songs = db.getCollection("songs");
 		BasicDBObject query = new BasicDBObject();
-	    query.put("_id", new ObjectId(songId));
-
-	    DBObject dbObj = (DBObject) db.getCollection("songs").find(query);
-	    
-		if (dbObj == null)
-			rtn = new DbQueryStatus("NOT_FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+		query.put("_id", new ObjectId(songId));
+		FindIterable<Document> cursor = songs.find(query);
+        
+		if (cursor.first() == null) { 
+        	//song not found
+        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        }
+        
+        Document d = cursor.first();
+        DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        status.setData(d);
+		return status;
 			
-	    else {
-	    	rtn = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
-			rtn.setData(dbObj);
-	    }
-		
-		return rtn;
-	    
-		
 	}
 
 	@Override
 	public DbQueryStatus getSongTitleById(String songId) {
 		MongoCollection<Document> songs = db.getCollection("songs");
 		BasicDBObject query = new BasicDBObject();
-		query.put("_id", songId);
+		query.put("_id", new ObjectId(songId));
 		FindIterable<Document> cursor = songs.find(query);
         
-//		if (cursor.first() == null) { 
-//        	//song not found
-//        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
-//        }
+		if (cursor.first() == null) { 
+        	//song not found
+        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        }
         
         Document d = cursor.first();
         DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
