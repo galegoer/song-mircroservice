@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.DBObject;
 
 @Repository
 public class SongDalImpl implements SongDal {
@@ -20,6 +21,7 @@ public class SongDalImpl implements SongDal {
 	@Autowired
 	public SongDalImpl(MongoTemplate mongoTemplate) {
 		this.db = mongoTemplate;
+		
 	}
 
 	@Override
@@ -42,8 +44,24 @@ public class SongDalImpl implements SongDal {
 
 	@Override
 	public DbQueryStatus findSongById(String songId) {
-		// TODO Auto-generated method stub
-		return null;
+		DbQueryStatus rtn;
+		
+		BasicDBObject query = new BasicDBObject();
+	    query.put("_id", new ObjectId(songId));
+
+	    DBObject dbObj = (DBObject) db.getCollection("songs").find(query);
+	    
+		if (dbObj == null)
+			rtn = new DbQueryStatus("NOT_FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+			
+	    else {
+	    	rtn = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+			rtn.setData(dbObj);
+	    }
+		
+		return rtn;
+	    
+		
 	}
 
 	@Override
