@@ -30,7 +30,7 @@ public class SongController {
 	private final SongDal songDal;
 
 	private OkHttpClient client = new OkHttpClient();
-
+	
 	
 	public SongController(SongDal songDal) {
 		this.songDal = songDal;
@@ -81,8 +81,18 @@ public class SongController {
 
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("path", String.format("POST %s", Utils.getUrl(request)));
+		
+	
+		Song newSong = new Song((String) request.getParameter("songName"), (String) request.getParameter("songArtistFullName"), (String) request.getParameter("songAlbum"));
+		newSong.setId(newSong._id.get());
+		
+		DbQueryStatus dbQueryStatus = songDal.addSong(newSong);
 
-		return null;
+		response.put("message", dbQueryStatus.getMessage());
+		//newSong.getJsonrepresentation?
+		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), newSong.getJsonRepresentation());
+
+		return response;
 	}
 
 	

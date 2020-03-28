@@ -29,7 +29,8 @@ public class SongDalImpl implements SongDal {
 		document.put("songArtistFullName", songToAdd.getSongArtistFullName());
 		document.put("songAlbum", songToAdd.getSongAlbum());
 		document.put("songAmountFavourites", songToAdd.getSongAmountFavourites());
-		document.put("id", songToAdd._id);
+		
+		//document.put("id", songToAdd._id.get());
 
 //may be useful for something else later
 //		BasicDBObject documentDetail = new BasicDBObject();
