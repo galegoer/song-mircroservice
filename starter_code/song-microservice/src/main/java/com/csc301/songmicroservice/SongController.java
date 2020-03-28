@@ -30,7 +30,7 @@ public class SongController {
 	private final SongDal songDal;
 
 	private OkHttpClient client = new OkHttpClient();
-
+	
 	
 	public SongController(SongDal songDal) {
 		this.songDal = songDal;
@@ -61,10 +61,8 @@ public class SongController {
 		response.put("path", String.format("GET %s", Utils.getUrl(request)));
 
 		DbQueryStatus dbQueryStatus = songDal.getSongTitleById(songId);
-
 		response.put("message", dbQueryStatus.getMessage());
 		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
-
 		return response;
 	}
 
@@ -76,7 +74,12 @@ public class SongController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("path", String.format("DELETE %s", Utils.getUrl(request)));
 
-		return null;
+		DbQueryStatus dbQueryStatus = songDal.deleteSongById(songId);
+		
+		response.put("message", dbQueryStatus.getMessage());
+		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
+		
+		return response;
 	}
 
 	
@@ -86,8 +89,18 @@ public class SongController {
 
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("path", String.format("POST %s", Utils.getUrl(request)));
+		
+	
+		Song newSong = new Song(params.get("songName"), params.get("songArtistFullName"), params.get("songAlbum"));
+		newSong.setId(newSong._id.get());
+		
+		DbQueryStatus dbQueryStatus = songDal.addSong(newSong);
 
-		return null;
+		//response.put("message", dbQueryStatus.getMessage());
+		//newSong.getJsonrepresentation?
+		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), newSong.getJsonRepresentation());
+
+		return response;
 	}
 
 	
@@ -98,6 +111,11 @@ public class SongController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("data", String.format("PUT %s", Utils.getUrl(request)));
 
-		return null;
+		DbQueryStatus dbQueryStatus = songDal.updateSongFavouritesCount(songId, shouldDecrement.equals("true"));
+		
+		response.put("message", dbQueryStatus.getMessage());
+		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
+		
+		return response;
 	}
 }
