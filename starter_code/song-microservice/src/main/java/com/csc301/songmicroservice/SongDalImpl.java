@@ -32,15 +32,6 @@ public class SongDalImpl implements SongDal {
 		document.put("songAlbum", songToAdd.getSongAlbum());
 		document.put("songAmountFavourites", songToAdd.getSongAmountFavourites());
 		
-		//document.put("id", songToAdd._id.get());
-
-//may be useful for something else later
-//		BasicDBObject documentDetail = new BasicDBObject();
-//		documentDetail.put("addressLine1", "Sweet Home");
-//		documentDetail.put("addressLine2", "Karol Bagh");
-//		documentDetail.put("addressLine3", "New Delhi, India");
-//		 
-//		document.put("address", documentDetail);
 		 
 		db.getCollection("songs").insertOne(document);
 		
@@ -61,10 +52,12 @@ public class SongDalImpl implements SongDal {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", songId);
 		FindIterable<Document> cursor = songs.find(query);
-        if (cursor.first() == null) { 
-        	//song not found
-        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
-        }
+        
+//		if (cursor.first() == null) { 
+//        	//song not found
+//        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+//        }
+        
         Document d = cursor.first();
         DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
         status.setData(d.getString("songName"));
