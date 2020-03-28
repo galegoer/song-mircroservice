@@ -81,9 +81,22 @@ public class SongDalImpl implements SongDal {
 	}
 
 	@Override
-	public DbQueryStatus deleteSongById(String songId) {
-		// TODO Auto-generated method stub
-		return null;
+	public DbQueryStatus deleteSongById(String songId) {  //might need to make it delete from all favorites list?!
+		MongoCollection<Document> songs = db.getCollection("songs");
+		BasicDBObject query = new BasicDBObject();
+		
+		songs.deleteOne(new Document("_id", new ObjectId(songId)));
+		
+		query.put("_id", new ObjectId(songId));
+		FindIterable<Document> cursor = songs.find(query);
+        
+		if (cursor.first() == null) { 
+        	//song not found
+        	return new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        }
+		
+		
+		return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
 	}
 
 	@Override
