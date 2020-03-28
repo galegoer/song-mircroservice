@@ -85,13 +85,14 @@ public class SongDalImpl implements SongDal {
 		MongoCollection<Document> songs = db.getCollection("songs");
 		BasicDBObject query = new BasicDBObject();
 		
-		songs.deleteOne(new Document("_id", new ObjectId(songId)));
+		
 		
 		query.put("_id", new ObjectId(songId));
 		FindIterable<Document> cursor = songs.find(query);
         
-		if (cursor.first() == null) { 
+		if (cursor.first() != null) { 
         	//song not found
+			songs.deleteOne(new Document("_id", new ObjectId(songId)));
         	return new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
         }
 		

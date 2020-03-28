@@ -76,7 +76,12 @@ public class SongController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		response.put("path", String.format("DELETE %s", Utils.getUrl(request)));
 
-		return null;
+		DbQueryStatus dbQueryStatus = songDal.deleteSongById(songId);
+		
+		response.put("message", dbQueryStatus.getMessage());
+		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), dbQueryStatus.getData());
+		
+		return response;
 	}
 
 	
@@ -88,7 +93,7 @@ public class SongController {
 		response.put("path", String.format("POST %s", Utils.getUrl(request)));
 		
 	
-		Song newSong = new Song((String) request.getParameter("songName"), (String) request.getParameter("songArtistFullName"), (String) request.getParameter("songAlbum"));
+		Song newSong = new Song(params.get("songName"), params.get("songArtistFullName"), params.get("songAlbum"));
 		newSong.setId(newSong._id.get());
 		
 		DbQueryStatus dbQueryStatus = songDal.addSong(newSong);
