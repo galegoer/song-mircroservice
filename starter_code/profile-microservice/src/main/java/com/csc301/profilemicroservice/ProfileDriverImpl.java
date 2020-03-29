@@ -78,7 +78,36 @@ public class ProfileDriverImpl implements ProfileDriver {
 	@Override
 	public DbQueryStatus unfollowFriend(String userName, String frndUserName) {
 		
-		return null;
+		try (Session session = ProfileMicroserviceApplication.driver.session()) {
+			try (Transaction trans = session.beginTransaction()) {
+				
+				//check if userName and frnUserName profiles exist
+				StatementResult u1 = trans.run("MATCH (a:profile) WHERE a.userName = $uname RETURN a.userName", parameters("uname", userName)); 
+				StatementResult u2 = trans.run("MATCH (a:profile) WHERE a.userName = $uname RETURN a.userName", parameters("uname", frndUserName)); 
+        		if(!u1.hasNext())  //if not exist
+        			return new DbQueryStatus("userName not found", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        		
+        		if(!u2.hasNext())  //if not exist
+            		return new DbQueryStatus("frndUserName not found", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+            	
+            	
+        		//check if relationship exists
+            	StatementResult relationshipCheck = trans.run("MATCH (:profile { userName: {x} })-[r:follows]->(:profile { userName: {y}}) RETURN type(r)", parameters("x", userName, "y", frndUserName));
+            	if(relationshipCheck.hasNext()) { //delete relationship
+            		StatementResult result = trans.run("MATCH (:profile { userName: {x} })-[r:follows]->(:profile { userName: {y}}) DELETE r", parameters("x", userName, "y", frndUserName));
+            		trans.success();
+            		return new DbQueryStatus("relationship successfully removed", DbQueryExecResult.QUERY_OK);
+            	}
+            	else {
+            		return new DbQueryStatus("relationship doesn't exist", DbQueryExecResult.QUERY_ERROR_GENERIC);
+            	}
+        		
+        	}
+			catch(Exception e) {
+				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+			}
+		
+		}
 	}
 
 	@Override
