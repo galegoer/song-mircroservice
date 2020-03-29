@@ -46,21 +46,13 @@ public class ProfileDriverImpl implements ProfileDriver {
 	
 	@Override
 	public DbQueryStatus createUserProfile(String userName, String fullName, String password) {
-		//nProfile:profile)-[:created]->(nPlaylist:playlist)
-		//"MATCH (a:actor), (b:movie) "
-		//"WHERE a.id = $actorId AND b.id = $movieId "
-		//"CREATE (a)-[r:ACTED_IN]->(b) "
-		//"RETURN type(r)", parameters("actorId", actorId, "movieId", movieId));
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("username", userName);
-		params.put("fullname", fullName);
-		params.put("password", password);
 		try (Session session = driver.session())
         {	
         	try (Transaction tx = session.beginTransaction())
         	{
         		tx.run("CREATE (:profile {userName: $username, fullName: $fullname, password: $password })"
-        				+ "-[:created]->(:playlist {plName: 'favorites'})", params);
+        				+ "-[:created]->(:playlist {plName: $favorites})", parameters("username", userName, "fullname", fullName,
+        						"password", password, "favorites", userName+"-favorites"));
         		tx.success();  // Mark this write as successful.
         		return new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
         	}catch(ClientException e) {
