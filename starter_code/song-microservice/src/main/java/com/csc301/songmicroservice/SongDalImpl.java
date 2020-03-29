@@ -102,7 +102,6 @@ public class SongDalImpl implements SongDal {
 
 	@Override
 	public DbQueryStatus updateSongFavouritesCount(String songId, boolean shouldDecrement) {
-		MongoCollection<Document> songs = db.getCollection("songs");
 		Song song = db.findById(songId, Song.class);
 		if (song == null) { 
         	//song not found
@@ -110,6 +109,10 @@ public class SongDalImpl implements SongDal {
         }
 		//else found
         if (shouldDecrement) {
+        	if(song.getSongAmountFavourites() == 0) {
+        		//Decrement something that has no favs
+        		return new DbQueryStatus("CANNOT UPDATE COUNT", DbQueryExecResult.QUERY_ERROR_GENERIC);
+        	}
         	song.setSongAmountFavourites(song.getSongAmountFavourites() - 1);
         	db.save(song);
             DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
