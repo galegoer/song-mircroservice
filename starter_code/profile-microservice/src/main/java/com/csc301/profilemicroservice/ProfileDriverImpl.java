@@ -54,12 +54,12 @@ public class ProfileDriverImpl implements ProfileDriver {
         				+ "-[:created]->(:playlist {plName: $favorites})", parameters("username", userName, "fullname", fullName,
         						"password", password, "favorites", userName+"-favorites"));
         		tx.success();  // Mark this write as successful.
-        		return new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        		return new DbQueryStatus("Created profile", DbQueryExecResult.QUERY_OK);
         	}catch(ClientException e) {
-    			return new DbQueryStatus("USERNAME EXISTS", DbQueryExecResult.QUERY_ERROR_GENERIC);
+    			return new DbQueryStatus("Username exists", DbQueryExecResult.QUERY_ERROR_GENERIC);
         	}
         }catch(Exception e) {
-        	return new DbQueryStatus("SESSION ERROR", DbQueryExecResult.QUERY_ERROR_GENERIC);
+        	return new DbQueryStatus("Session error", DbQueryExecResult.QUERY_ERROR_GENERIC);
         }
 	}
 
@@ -94,7 +94,7 @@ public class ProfileDriverImpl implements ProfileDriver {
         		 
         	}
 			catch(Exception e) {
-				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+				return new DbQueryStatus("Failed transaction", DbQueryExecResult.QUERY_ERROR_GENERIC);
 			}
 		
 		}
@@ -129,7 +129,7 @@ public class ProfileDriverImpl implements ProfileDriver {
         		
         	}
 			catch(Exception e) {
-				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+				return new DbQueryStatus("Failed transaction", DbQueryExecResult.QUERY_ERROR_GENERIC);
 			}
 		
 		}
