@@ -155,6 +155,30 @@ public class PlaylistDriverImpl implements PlaylistDriver {
 	@Override
 	public DbQueryStatus deleteSongFromDb(String songId) {
 		
-		return null;
+		try (Session session = driver.session()) {
+			try (Transaction trans = session.beginTransaction()) {	
+        		String JSONRes = HttpRequest("http://localhost:3001" + "/getSongTitleById/"+songId, "GET", "");
+        		if(JSONRes.contains("data")) {
+        			//data reveals that we have that songID in mongodb
+        			StatementResult res = trans.run("MATCH (a:song {songId: $songid}) RETURN a", parameters("songid", songId));
+        			if(res.hasNext()) {
+        				//song exists in neo4j
+        				StatementResult playlists = trans.run("MATCH (a:playlist)-[r:includes]->(:song{songId: $songid}) DELETE r", parameters("songid", songId));
+        				trans.run("MATCH (a:song {songId: $songid}) DELETE a", parameters("songid", songId));
+        				trans.success();
+                    	return new DbQueryStatus("Song deleted", DbQueryExecResult.QUERY_OK);
+        			} else {
+        				//song doesnt exist in neo4j
+            			trans.success();
+            			return new DbQueryStatus("Song already deleted", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        			}
+        		} else {
+        			return new DbQueryStatus("songId does not exist", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        		}
+        	} catch(Exception e) {
+				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+			}
+		
+		}
 	}
 }
