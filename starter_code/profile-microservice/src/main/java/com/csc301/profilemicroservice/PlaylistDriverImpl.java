@@ -96,13 +96,14 @@ public class PlaylistDriverImpl implements PlaylistDriver {
             			trans.run("CREATE (:song {songId: $songid})", parameters("songid", songId));
         				trans.run("MATCH (a:playlist {plName: $playname}),(b:song {songId: $songid}) CREATE (a)-[r:includes]->(b)", parameters("playname", playlistName, "songid", songId));
     					String updateRes = HttpRequest("http://localhost:3001/updateSongFavouritesCount/"+songId, "PUT", "false");
-            			return new DbQueryStatus("Song liked", DbQueryExecResult.QUERY_OK);
+            			trans.success();
+    					return new DbQueryStatus("Song liked", DbQueryExecResult.QUERY_OK);
         			}
         		} else {
         			return new DbQueryStatus("songId does not exist", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
         		}
         	} catch(Exception e) {
-				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+				return new DbQueryStatus("Failed transaction", DbQueryExecResult.QUERY_ERROR_GENERIC);
 			}
 		
 		}
@@ -146,7 +147,7 @@ public class PlaylistDriverImpl implements PlaylistDriver {
         			return new DbQueryStatus("songId does not exist", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
         		}
         	} catch(Exception e) {
-				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+				return new DbQueryStatus("Failed transaction", DbQueryExecResult.QUERY_ERROR_GENERIC);
 			}
 		
 		}
@@ -176,7 +177,7 @@ public class PlaylistDriverImpl implements PlaylistDriver {
         			return new DbQueryStatus("songId does not exist", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
         		}
         	} catch(Exception e) {
-				return new DbQueryStatus("FAILED TO RUN TRANSACTION", DbQueryExecResult.QUERY_ERROR_GENERIC);
+				return new DbQueryStatus("Failed transaction", DbQueryExecResult.QUERY_ERROR_GENERIC);
 			}
 		
 		}

@@ -1,5 +1,7 @@
 package com.csc301.songmicroservice;
 
+import java.io.IOException;
+
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,14 @@ import org.springframework.stereotype.Repository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import com.mongodb.DBObject;
 
 @Repository
@@ -38,7 +48,7 @@ public class SongDalImpl implements SongDal {
 		 
 		db.getCollection("songs").insertOne(document);
 		
-		rtn = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+		rtn = new DbQueryStatus("Added song", DbQueryExecResult.QUERY_OK);
 		rtn.setData(document); //unless its "data" : all the puts
 		return rtn;
 	}
@@ -56,7 +66,7 @@ public class SongDalImpl implements SongDal {
         }
         
         Document d = cursor.first();
-        DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        DbQueryStatus status = new DbQueryStatus("Song found", DbQueryExecResult.QUERY_OK);
         status.setData(d);
 		return status;
 			
@@ -71,33 +81,29 @@ public class SongDalImpl implements SongDal {
         
 		if (cursor.first() == null) { 
         	//song not found
-        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        	return new DbQueryStatus("Song not found", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
         }
         
         Document d = cursor.first();
-        DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        DbQueryStatus status = new DbQueryStatus("Song found", DbQueryExecResult.QUERY_OK);
         status.setData(d.getString("songName"));
 		return status;
 	}
 
 	@Override
-	public DbQueryStatus deleteSongById(String songId) {  //might need to make it delete from all favorites list?!
+	public DbQueryStatus deleteSongById(String songId) {  //might need to make it delete from all favorites list?! no according to discussion board
 		MongoCollection<Document> songs = db.getCollection("songs");
 		BasicDBObject query = new BasicDBObject();
-		
-		
 		
 		query.put("_id", new ObjectId(songId));
 		FindIterable<Document> cursor = songs.find(query);
         
 		if (cursor.first() != null) { 
-        	//song not found
+        	//song found
 			songs.deleteOne(new Document("_id", new ObjectId(songId)));
-        	return new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        	return new DbQueryStatus("Deleted song", DbQueryExecResult.QUERY_OK);
         }
-		
-		
-		return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+		return new DbQueryStatus("Song not found", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
 	}
 
 	@Override
@@ -105,23 +111,23 @@ public class SongDalImpl implements SongDal {
 		Song song = db.findById(songId, Song.class);
 		if (song == null) { 
         	//song not found
-        	return new DbQueryStatus("NOT FOUND", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
+        	return new DbQueryStatus("Song not found", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
         }
 		//else found
         if (shouldDecrement) {
         	if(song.getSongAmountFavourites() == 0) {
         		//Decrement something that has no favs
-        		return new DbQueryStatus("CANNOT UPDATE COUNT", DbQueryExecResult.QUERY_ERROR_GENERIC);
+        		return new DbQueryStatus("Cannot decrement count", DbQueryExecResult.QUERY_ERROR_GENERIC);
         	}
         	song.setSongAmountFavourites(song.getSongAmountFavourites() - 1);
         	db.save(song);
-            DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+            DbQueryStatus status = new DbQueryStatus("Updated favorites", DbQueryExecResult.QUERY_OK);
             
             return status;
         } else {
         	//else increment
         	song.setSongAmountFavourites(song.getSongAmountFavourites() + 1);
-        	DbQueryStatus status = new DbQueryStatus("OK", DbQueryExecResult.QUERY_OK);
+        	DbQueryStatus status = new DbQueryStatus("Updated favorites", DbQueryExecResult.QUERY_OK);
         	db.save(song);
         	
         	return status;
