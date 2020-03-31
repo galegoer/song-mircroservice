@@ -40,6 +40,9 @@ public class SongDalImpl implements SongDal {
 		DbQueryStatus rtn;
 		
 		Document document = new Document(); //BasicDbobject doc = new basicDebobeject()
+		if(songToAdd.getSongName() == null || songToAdd.getSongArtistFullName() == null || songToAdd.getSongAlbum() == null) {
+			return new DbQueryStatus("Missing song info", DbQueryExecResult.QUERY_ERROR_GENERIC);
+		}
 		document.put("songName", songToAdd.getSongName());
 		document.put("songArtistFullName", songToAdd.getSongArtistFullName());
 		document.put("songAlbum", songToAdd.getSongAlbum());
@@ -66,6 +69,7 @@ public class SongDalImpl implements SongDal {
         }
         
         Document d = cursor.first();
+        d.replace("_id", songId);
         DbQueryStatus status = new DbQueryStatus("Song found", DbQueryExecResult.QUERY_OK);
         status.setData(d);
 		return status;

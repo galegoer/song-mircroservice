@@ -93,11 +93,9 @@ public class SongController {
 	
 		Song newSong = new Song(params.get("songName"), params.get("songArtistFullName"), params.get("songAlbum"));
 		newSong.setId(newSong._id.get());
-		
 		DbQueryStatus dbQueryStatus = songDal.addSong(newSong);
 
-		//response.put("message", dbQueryStatus.getMessage());
-		//newSong.getJsonrepresentation?
+		response.put("message", dbQueryStatus.getMessage());
 		response = Utils.setResponseStatus(response, dbQueryStatus.getdbQueryExecResult(), newSong.getJsonRepresentation());
 
 		return response;

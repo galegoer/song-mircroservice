@@ -128,7 +128,7 @@ public class PlaylistDriverImpl implements PlaylistDriver {
         				//song exists in neo4j
         				StatementResult exists = trans.run("MATCH (:playlist {plName: $playname})-[r:includes]->(:song{songId: $songid}) RETURN r", parameters("playname", playlistName, "songid", songId));
         				if(!exists.hasNext()) {
-        					//relationship doesn't exist so i guess it's unliked already?
+        					//relationship doesn't exist so it's unliked already
         					trans.success();
                     		return new DbQueryStatus("Song not in favorites", DbQueryExecResult.QUERY_ERROR_NOT_FOUND);
         				} else {
@@ -160,7 +160,7 @@ public class PlaylistDriverImpl implements PlaylistDriver {
 			try (Transaction trans = session.beginTransaction()) {	
         		String JSONRes = HttpRequest("http://localhost:3001" + "/getSongTitleById/"+songId, "GET", "");
         		if(JSONRes.contains("data")) {
-        			//data reveals that we have that songID in mongodb
+        			//data reveals that we have that songID in mongodb (no data means some kind of error, couldn't find, internal error, etc.)
         			StatementResult res = trans.run("MATCH (a:song {songId: $songid}) RETURN a", parameters("songid", songId));
         			if(res.hasNext()) {
         				//song exists in neo4j

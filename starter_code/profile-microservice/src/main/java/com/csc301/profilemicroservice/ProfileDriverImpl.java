@@ -175,7 +175,7 @@ public class ProfileDriverImpl implements ProfileDriver {
 		try (Session session = ProfileMicroserviceApplication.driver.session()) {
 			try (Transaction trans = session.beginTransaction()) {
 				JSONObject friendData = new JSONObject();
-				Map<String, List<String>> s = new HashMap<String, List<String>>();
+				Map<String, List<String>> responseData = new HashMap<String, List<String>>();
 				
 				DbQueryStatus rtn = new DbQueryStatus("succesfully retrieved friend songs", DbQueryExecResult.QUERY_OK);
 				
@@ -197,7 +197,6 @@ public class ProfileDriverImpl implements ProfileDriver {
         			
         			StatementResult getSongs = trans.run("MATCH (:playlist { plName: {x} })-[:includes]->(song) RETURN song.songId", parameters("x", playlistName));
         			       			        			
-        			//JSONObject friendSongs = new JSONObject();
         			List<String> songList = new ArrayList();
         		   //for each songID get song title
         			while (getSongs.hasNext()) {
@@ -215,17 +214,11 @@ public class ProfileDriverImpl implements ProfileDriver {
         			}
         			
         			friendData.put(frndName, songList); //place list of titles in JSONObject {friendname : [song titles]}
-        			//friendData.put(friendSongs); //add to JSONArray
-        			s.put(frndName, songList);
+        			responseData.put(frndName, songList);
         		} 
         			
         		trans.success();
-        		//List<String> testy = new ArrayList<String>();
-        		//testy.add("testing");
-        		//Map<String, List<String>> s;
-        		
-        		
-        		rtn.setData(s);
+        		rtn.setData(responseData);
             	return rtn;
         		      	           	        		
         	}
